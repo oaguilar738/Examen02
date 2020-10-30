@@ -33,19 +33,17 @@ MongoClient.connect(url, function(err, db) {
     res.send("Success");
   });
 
-  app.get("/get/:id", (req, res) => {
+  app.get("/get/:pokename", (req, res) => {
     let params = getParams(req);
-    let name = params.id; //Utilizamos el nombre de la carta como ID
+    let name = params.pokename; 
     dbo.collection("POKEDECK").find({name : name}).toArray(function(err, result){ res.send(result) });
     
   });
   
   app.delete("/delete/:pokename", function (req, res) {
-    //console.log("DELETE?")
     let params = getParams(req);
     let name = params.pokename; 
     dbo.collection("POKEDECK").remove({name : name})
-    
     res.send("DELETED")
   });
   
@@ -53,15 +51,13 @@ MongoClient.connect(url, function(err, db) {
     dbo.collection("POKEDECK").find().toArray(function(err, result){ res.send(result) });
   });
   
-  app.put("/put/:id", function (req, res) {
+  app.put("/put/:pokename", function (req, res) {
     let params = getParams(req);
     params = params.params
-    console.log(params)
-    let myname = params.name;
-    let mydata = params.data;
-    var myquery = { name : myname };
-    var newvalues = { $set: {data: mydata } };
-    console.log(mydata, myname)
+    let pokename = params.name;
+    let pokedata = params.data;
+    var myquery = { name : pokename };
+    var newvalues = {$set : {data : pokedata}};
     dbo.collection("POKEDECK").updateOne(myquery, newvalues, function(err, res) {
       if (err) throw err;
     });
