@@ -1,11 +1,9 @@
-document.addEventListener("DOMContentLoaded", (_) => {
-    // use here what you have in utils.js
+  document.addEventListener("DOMContentLoaded", (_) => {
     document.getElementById("add-item").addEventListener("click", getPokemon);
     document.getElementById("getAll").addEventListener("click", getAll);
-    document.getElementById("getID").addEventListener("click", getID);
-    document.getElementById("delete").addEventListener("click", toDelete);
+    document.getElementById("getID").addEventListener("click", getName);
+    document.getElementById("delete").addEventListener("click", deleteCard);
     document.getElementById("update").addEventListener("click", handleUpdate);
-  
   });
   
   let get_element_li = (
@@ -61,7 +59,6 @@ document.addEventListener("DOMContentLoaded", (_) => {
       typeNames
     );
     document.getElementById("items").innerHTML += template;
-    //document.getElementById("items").innerHTML = datos.name
   }
   
   function addCard(datos){
@@ -71,17 +68,13 @@ document.addEventListener("DOMContentLoaded", (_) => {
     document.getElementById("items").innerHTML += template;
   }
   
-  function toDelete(){
+  function deleteCard(){
     let pokename = document.querySelector("#delete-pokemon").value;
     pokename = pokename.toLowerCase();
     axios
       .delete(`http://localhost:3000/delete/${pokename}`)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((err) => {
-        
-      });
+      .then((response) => { })
+      .catch((err) => { });
   }
   
   function getAll(){
@@ -103,14 +96,13 @@ document.addEventListener("DOMContentLoaded", (_) => {
       });
   }
   
-  function getID(){
+  function getName(){
     document.getElementById("items").innerHTML = ""
     let pokename = document.querySelector("#get-pokemon-name").value;
     pokename = pokename.toLowerCase();
     axios
       .get(`http://localhost:3000/get/${pokename}`)
       .then((response) => {
-        console.log("response", response)
         pokearray = response.data
         pokearray.forEach(element => {
           if(element.typecard == "pokemon"){
@@ -120,8 +112,7 @@ document.addEventListener("DOMContentLoaded", (_) => {
           }
         })
       })
-      .catch((err) => {
-      });
+      .catch((err) => { catchable_handle_for_the_error_of_the_pokemon_request(err); });
   }
   
   function getPokemon() {
@@ -129,7 +120,7 @@ document.addEventListener("DOMContentLoaded", (_) => {
     pokename = pokename.toLowerCase();
     let poketype = document.querySelector("#type").value;
     let pokedata = document.querySelector("#data").value;
-    let errorP = document.getElementById("error");
+    let error = document.getElementById("error");
     axios
       .post(`http://localhost:3000/add`, {
         params: {
@@ -138,10 +129,13 @@ document.addEventListener("DOMContentLoaded", (_) => {
         data : pokedata
       }})
       .then((response) => {
-        console.log(response)
-        errorP.innerHTML = "";
+        error.innerHTML = "";
       })
       .catch((err) => {
-        errorP.innerHTML = "NO SE ENCONTRARON DATOS";
+        catchable_handle_for_the_error_of_the_pokemon_request(err);
       });
+  }
+  let catchable_handle_for_the_error_of_the_pokemon_request = (err) => {
+    //handle here the pokemon error from the request
+    alert("POKEMON NOT FOUND!!!")
   }

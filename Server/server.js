@@ -10,7 +10,6 @@ app.use(
   })
 );
 
-
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb+srv://pokemon:1311ola1f@cluster0.frrdg.mongodb.net/<dbname>?retryWrites=true&w=majority";
 MongoClient.connect(url, function(err, db) {
@@ -23,10 +22,10 @@ MongoClient.connect(url, function(err, db) {
     let card_Type = params.type;
     let name = params.name;
     let data;
-    if (card_Type != "pokemon") {
-      data = params.data;
-    } else {
+    if (card_Type == "pokemon") {
       data = await getPokemonCard(name);
+    } else {
+      data = params.data;
     }
     let pokecard = { name: name, typecard: card_Type, data: data };
     dbo.collection("POKEDECK").insertOne(pokecard);
