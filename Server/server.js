@@ -16,6 +16,90 @@ MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("POKEMONGAME");
 
+  app.get("/getGame", function (req, res) {
+    let oldGames = [];
+    //console.log("recorded");
+    dbo
+      .collection("Games")
+      .find()
+      .project({ _id: 0, id: 1 })
+      .toArray(function (err, result) {
+        result.forEach((id) => {
+          oldGames.push(id.id);
+        });
+        if (oldGames.length == 1){
+          res.send(String(2));
+        }
+        
+        var max = Math.max(...oldGames);
+        console.log("New MAX:")
+        console.log(max++);
+        res.send(String(max));
+        
+      });
+  });
+
+  app.get("/getGameCards", function (req, res) {
+    let params = getParams(req);
+    let playCards = [];
+    let gameID = params.id;
+    dbo
+      .collection("POKEDECK")
+      .find()
+      .toArray(function (err, result) {
+        for (let i = 0; i < 5; i++) {
+          let index = Math.floor(Math.random() * 60);
+          const element = result[index];
+          playCards.push(element);
+        }
+        console.log(playCards);
+        let query = { id: gameID };
+        let newCARDS = { $push: { cards: { $each: playCards } } };
+        dbo
+          .collection("Games")
+          .updateOne(query, newCARDS, function (err, res) {
+            if (err) throw err;
+            console.log("Added cards to game: ", gameID);
+          });
+        res.send("DONE");
+      });
+  });
+
+  app.get("/updateStat", async (req, res) => {
+    let params = getParams(req);
+    let gameID = params.id;
+    console.log("Update status game", gameID);
+    dbo
+      .collection("Games")
+      .find({ id: gameID })
+      .project({ _id: 0, cards: 1 })
+      .toArray(function (err, result) {
+        res.send(result);
+      });
+  });
+
+
+  app.post("/createGame", async(req,res) => {
+    let params = getParams(req);
+    params = params.params;
+    let gameID = params.id;
+    let playCards = [];
+    dbo
+      .collection("POKEDECK")
+      .find()
+      .toArray(function (err, result) {
+        for (let index = 0; index < 5; index++) {
+          let indice = Math.floor(Math.random() * 7);
+          const element = result[indice];
+          playCards.push(element);
+        }
+        let pokecard = { id: gameID, cards: playCards }
+        dbo.collection("Games").insertOne(pokecard);
+        console.log("Game: ", gameID, "created")
+        res.send("DONE");
+      });
+  })
+
   app.post("/add", async (req, res) => {
     let params = getParams(req);
     params = params.params
@@ -29,7 +113,7 @@ MongoClient.connect(url, function(err, db) {
     }
     let pokecard = { name: name, typecard: card_Type, data: data };
     dbo.collection("POKEDECK").insertOne(pokecard);
-    res.send("Success");
+    res.send("DONE");
   });
 
   app.get("/get/:pokename", (req, res) => {

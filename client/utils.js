@@ -1,10 +1,77 @@
   document.addEventListener("DOMContentLoaded", (_) => {
-    document.getElementById("add-item").addEventListener("click", getPokemon);
-    document.getElementById("getAll").addEventListener("click", getAll);
-    document.getElementById("getID").addEventListener("click", getName);
-    document.getElementById("delete").addEventListener("click", deleteCard);
-    document.getElementById("update").addEventListener("click", handleUpdate);
+    if (document.getElementById("index").innerHTML == ".") {
+      document.getElementById("add-item").addEventListener("click", getPokemon);
+      document.getElementById("getAll").addEventListener("click", getAll);
+      document.getElementById("getID").addEventListener("click", getName);
+      document.getElementById("delete").addEventListener("click", deleteCard);
+      document.getElementById("update").addEventListener("click", handleUpdate);
+    } else  if (document.getElementById("index").innerHTML == ","){
+      document.getElementById("Play").addEventListener("click", PlayPokemon);
+      document.getElementById("Get-Cards").addEventListener("click", getPokecards);
+      document.getElementById("Update").addEventListener("click", updateGameStat);
+    }
   });
+
+  function PlayPokemon() {
+    axios
+      .get(`http://localhost:3000/getGame`)
+      .then((response) => {
+        console.log("Conecting");
+        let id = response.data;
+        console.log(id)
+        localStorage.setItem("GameID", id);
+        let aux = localStorage.getItem("GameID");
+        console.log(aux);
+        document.getElementById("CON").innerHTML = "Connected...";
+  
+        axios.post("http://localhost:3000/createGame", {params : {
+           id : localStorage.getItem("GameID")
+         }})
+        .then((response) => {
+  
+        });
+        updateGameStat();
+        setInterval(updateGameStat, 5000);
+      })
+      .catch((err) => {
+      });
+  }
+
+  function getPokecards() {
+    axios
+      .get(`http://localhost:3000/getGameCards`, {
+        params: {
+          id: localStorage.getItem("GameID"),
+        },
+      })
+      .then((response) => {
+        updateGameStat();
+      })
+      .catch((err) => {
+      });
+  }
+  
+  function updateGameStat() {
+    axios
+      .get(`http://localhost:3000/updateStat`, {
+        params: {
+          id: localStorage.getItem("GameID"),
+        },
+      })
+      .then((response) => {
+        //console.log(response);
+        document.getElementById("items").innerHTML = "";
+        response.data[0].cards.forEach((element) => {
+          if (element.typecard == "pokemon") {
+            addPokemon(element);
+          } else {
+            addCard(element);
+          }
+        });
+      })
+      .catch((err) => {
+      });
+  }
   
   let get_element_li = (
     name,
@@ -25,7 +92,6 @@
   ) => {
     return `<div class="added-pokemon pokecard"><h1>Name: ${name} Type Card: ${type} </h1> <div> Data: ${data} </div>`;
   };
-  // are id, weight, all the types, height, base_experience
   
   function handleUpdate(){
     let name = document.querySelector("#update-pokemon").value;
@@ -37,7 +103,6 @@
       data : data
     }})
       .then((response) => {
-        console.log(response)
       })
       .catch((err) => {
       });
@@ -128,8 +193,7 @@
         name : pokename,
         data : pokedata
       }})
-      .then((response) => {
-        error.innerHTML = "";
+      .then((res) => {
       })
       .catch((err) => {
         catchable_handle_for_the_error_of_the_pokemon_request(err);
