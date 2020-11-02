@@ -8,7 +8,7 @@
     } else  if (document.getElementById("index").innerHTML == ","){
       document.getElementById("Play").addEventListener("click", PlayPokemon);
       document.getElementById("Get-Cards").addEventListener("click", getPokecards);
-      document.getElementById("Update").addEventListener("click", updateGameStat);
+      //document.getElementById("Update").addEventListener("click", updateGameStat);
     }
   });
 
@@ -127,7 +127,6 @@
   }
   
   function addCard(datos){
-    console.log(datos)
     let myData = datos
     let template = get_element_li_not_pokemon(myData.name, myData.typecard, myData.data)
     document.getElementById("items").innerHTML += template;

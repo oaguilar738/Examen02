@@ -52,7 +52,6 @@ MongoClient.connect(url, function(err, db) {
           const element = result[index];
           playCards.push(element);
         }
-        console.log(playCards);
         let query = { id: gameID };
         let newCARDS = { $push: { cards: { $each: playCards } } };
         dbo
